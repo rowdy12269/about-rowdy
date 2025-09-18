@@ -158,3 +158,86 @@
 
 </body>
 </html>
+       </div>
+    </div>
+    <audio id="background-music" loop>
+      <source src="background-music.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <script>
+    // Optimized JavaScript to reduce lag
+    document.addEventListener('DOMContentLoaded', function() {
+      const audio = document.getElementById('background-music');
+      const activateBtn = document.getElementById('activateBtn');
+      const contentWrapper = document.getElementById('contentWrapper');
+      const toggleBtn = document.getElementById('audio-toggle');
+      const audioLabel = document.getElementById('audio-label');
+      const audioIcon = toggleBtn.querySelector('i');
+
+      // Disable right-click
+      document.addEventListener('contextmenu', e => e.preventDefault());
+
+      // Initial audio play attempt
+      document.body.addEventListener('click', () => {
+        audio.play().catch(e => console.log("Autoplay prevented:", e));
+      }, { once: true });
+
+      activateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        // Request Fullscreen
+        const requestFullScreen = () => {
+          const el = document.documentElement;
+          if (el.requestFullscreen) el.requestFullscreen();
+          else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+          else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+          else if (el.msRequestFullscreen) el.msRequestFullscreen();
+        };
+        requestFullScreen();
+
+        activateBtn.style.transition = 'opacity 0.7s cubic-bezier(0.23, 1.08, 0.32, 1)';
+        activateBtn.style.opacity = "0";
+        
+        setTimeout(() => {
+          activateBtn.style.display = 'none';
+          contentWrapper.style.display = 'block';
+          void contentWrapper.offsetWidth; // Force reflow
+          contentWrapper.style.opacity = 1;
+          contentWrapper.style.transform = 'scale(1)';
+          initAnimations();
+          
+          if (!audio.muted) {
+            audioIcon.classList.replace('fa-volume-xmark', 'fa-volume-high');
+            audioLabel.textContent = "Sound";
+          } else {
+            audioIcon.classList.replace('fa-volume-high', 'fa-volume-xmark');
+            audioLabel.textContent = "No Sound";
+          }
+        }, 250);
+
+        // Play music
+        audio.play().catch(e => {
+          console.log("Audio play failed:", e);
+          audio.muted = true;
+          audio.play().then(() => {
+            audio.muted = false;
+            audioIcon.classList.replace('fa-volume-xmark', 'fa-volume-high');
+          }).catch(err => console.log("Muted audio play failed:", err));
+        });
+      });
+
+      toggleBtn.addEventListener('click', () => {
+        audio.muted = !audio.muted;
+        if(audio.muted) {
+          audioIcon.classList.replace('fa-volume-high', 'fa-volume-xmark');
+          audioLabel.textContent = "No Sound";
+        } else {
+          audioIcon.classList.replace('fa-volume-xmark', 'fa-volume-high');
+          audioLabel.textContent = "Sound";
+        }
+      });
+    </script>
+</body>
+</html>
